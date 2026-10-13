@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login | Co Save & Earn</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f5ed;color:#173a2d}
+header{background:#052d23;color:white;padding:18px;font-weight:bold}
+header a{float:right;color:#efd17a;text-decoration:none;font-size:13px}
+main{max-width:430px;margin:35px auto;padding:22px}
+.card{background:white;padding:24px;border-radius:17px;border:1px solid #e1e8df}
+h1{font-size:25px;margin:0 0 8px}
+p{font-size:13px;color:#6d7c71;line-height:1.7}
+label{display:block;font-size:12px;font-weight:bold;margin:16px 0 7px}
+input{width:100%;padding:13px;border:1px solid #dce4db;border-radius:9px;font-size:14px}
+button{width:100%;padding:14px;border:0;border-radius:9px;background:#07513b;color:white;font-weight:bold;margin-top:20px}
+#message{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+a{color:#07513b}
+</style>
+</head>
+<body>
+<header>✦ Co Save & Earn <a href="index.html">Home</a></header>
+<main>
+<div class="card">
+<h1>Welcome back</h1>
+<p>Log in to access your personal savings dashboard.</p>
+<div id="message" role="status"></div>
+
+<form id="loginForm">
+<label for="email">Email address</label>
+<input id="email" type="email" required autocomplete="email">
+
+<label for="password">Password</label>
+<input id="password" type="password" required autocomplete="current-password">
+
+<button id="loginButton" type="submit">Log in</button>
+</form>
+
+<p>Don't have an account? <a href="register.html">Create one</a></p>
+<p><a href="index.html">← Back to home</a></p>
+</div>
+</main>
+
+<script>
+const SUPABASE_URL="https://chjtxxwxhvjwpspmikme.supabase.co";
+const SUPABASE_KEY="sb_publishable_g8gM0qRrMveb8A7H3BLYYg_g21-SBKA";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+document.getElementById("loginForm").addEventListener("submit",async function(e){
+ e.preventDefault();
+ const message=document.getElementById("message");
+ const button=document.getElementById("loginButton");
+ message.style.color="#6d7c71";
+ message.textContent="Signing in...";
+ button.disabled=true;
+
+ try{
+  const {data,error}=await db.auth.signInWithPassword({
+   email:document.getElementById("email").value.trim(),
+   password:document.getElementById("password").value
+  });
+
+  if(error)throw error;
+
+  if(!data.user)throw new Error("Login was not completed. Please try again.");
+
+  message.style.color="#17683d";
+  message.textContent="Login successful. Opening your dashboard...";
+  location.href="dashboard.html";
+ }catch(error){
+  message.style.color="#b3261e";
+  message.textContent="Login failed: "+error.message;
+ }finally{
+  button.disabled=false;
+  button.textContent="Log in";
+ }
+});
+</script>
+</body>
+</html>
