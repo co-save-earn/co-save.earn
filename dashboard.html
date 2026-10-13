@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Co Save & Earn Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#073e30;--deep:#032b22;--gold:#e8c66b;--cream:#f6f5ee;--line:#e0e7df;--muted:#77857b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:#193329;font-family:Arial,sans-serif}
+header{background:var(--deep);color:white;padding:16px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:18px;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.btn{border:0;border-radius:10px;padding:12px;background:var(--green);color:white;font-weight:bold}
+.gold{background:var(--gold);color:var(--deep)}
+main{max-width:1000px;margin:auto;padding:16px 12px 100px}
+section{display:none}
+section.active{display:block}
+.hero{background:linear-gradient(120deg,var(--green),#14664b);color:white;padding:22px;border-radius:18px}
+.hero h2{font-size:27px;margin:8px 0}
+.muted{font-size:12px;color:var(--muted);line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:15px 0}
+.stat,.card{background:white;border:1px solid var(--line);border-radius:14px;padding:13px;min-width:0}
+.stat small{display:block;color:var(--muted);font-size:11px}
+.stat strong{display:block;margin-top:8px;color:var(--green);font-size:clamp(13px,3.5vw,21px);overflow-wrap:anywhere}
+h2{font-size:20px}
+.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.plan-art{height:100px;border-radius:12px;background:linear-gradient(145deg,#e3f0e4,#fff0c8);display:grid;place-items:center;font-size:49px;position:relative}
+.coin-slot{position:absolute;top:8px;left:50%;transform:translateX(-50%);height:5px;width:27px;background:#05291e;border-radius:5px}
+.plan h3{font-size:14px;margin:12px 0 5px}
+.plan p{font-size:12px;margin:7px 0;color:var(--muted)}
+.plan strong{color:var(--green)}
+.plan button{width:100%;margin-top:8px}
+.field{display:flex;flex-direction:column;gap:6px;margin:13px 0}
+.field label{font-size:12px;font-weight:bold}
+.field input,.field select{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;background:white}
+.card{margin-top:12px}
+.notice{padding:12px;border-radius:10px;background:#fff5d9;color:#725b1d;font-size:12px;line-height:1.6}
+.message{display:none;padding:12px;border-radius:9px;margin:12px 0;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.message.show{display:block}
+.message.error{background:#ffebeb;color:#982e2e}
+.message.success{background:#e3f5e8;color:#216a40}
+.row{padding:12px 0;border-bottom:1px solid var(--line);font-size:12px;display:flex;justify-content:space-between;gap:8px}
+.status{border-radius:15px;background:#fff0d2;color:#856018;padding:5px 8px;font-size:10px;height:max-content}
+nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 2px;z-index:5}
+nav button{border:0;background:white;color:var(--green);font-size:11px;padding:8px 4px}
+.hidden{display:none!important}
+@media(min-width:700px){.plans{grid-template-columns:repeat(4,minmax(0,1fr))}main{padding:25px 20px 110px}.hero{padding:30px}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>✦ Co Save & Earn</h1><small> SAVE. GROW. EARN.</small></div>
+  <button class="btn gold" onclick="openProfile()">My Profile</button>
+</header>
+
+<main>
+<section id="home" class="active">
+  <div class="hero">
+    <div style="color:var(--gold);font-size:11px">YOUR FINANCIAL SPACE</div>
+    <h2 id="welcome">Welcome!</h2>
+    <p>Choose your savings cycle and follow your recorded account activity.</p>
+    <button class="btn gold" onclick="page('deposit')">＋ Make a deposit</button>
+    <button class="btn" style="background:white;color:var(--green)" onclick="page('plans')">Explore plans</button>
+  </div>
+  <h2>Your account</h2>
+  <div class="stats">
+    <div class="stat"><small>Total deposited</small><strong id="deposited">0</strong></div>
+    <div class="stat"><small>Daily earnings*</small><strong id="daily">0</strong></div>
+    <div class="stat"><small>Total withdrawn</small><strong id="withdrawn">0</strong></div>
+  </div>
+  <p class="muted">*Earnings are estimates based on locally selected plans, not verified account balances or guaranteed returns.</p>
+  <h2>Savings plans</h2>
+  <div class="plans" id="featured"></div>
+  <h2>Recent activity</h2>
+  <div class="card" id="recent">Loading activity...</div>
+</section>
+
+<section id="plans">
+  <h2>All savings plans</h2>
+  <p class="muted">Figures are the configured prototype targets.</p>
+  <div class="plans" id="allPlans"></div>
+</section>
+
+<section id="deposit">
+  <h2>Deposit request</h2>
+  <div class="card">
+    <div class="notice">Minimum deposit: 20,000. Merchant pay code: <strong>7222103</strong>. A submitted request is not proof of payment.</div>
+    <div id="depositMessage" class="message"></div>
+    <form id="depositForm">
+      <div class="field"><label>Savings plan</label><select id="depositPlan" required></select></div>
+      <div class="field"><label>Amount</label><input id="depositAmount" type="number" min="20000" required></div>
+      <div class="field"><label>Mobile money provider</label><select id="depositProvider" required><option value="">Choose provider</option><option>MTN Mobile Money</option><option>Airtel Money</option></select></div>
+      <div class="field"><label>Mobile money account name</label><input id="depositName" required></div>
+      <div class="field"><label>Mobile money number</label><input id="depositNumber" type="tel" required></div>
+      <button class="btn" id="depositSubmit">Submit deposit request</button>
+    </form>
+  </div>
+</section>
+
+<section id="withdraw">
+  <h2>Withdrawal request</h2>
+  <div class="card">
+    <div class="notice">Minimum request: 20,000. Requests remain pending until reviewed. Submitting a request does not send money.</div>
+    <div id="withdrawMessage" class="message"></div>
+    <form id="withdrawForm">
+      <div class="field"><label>Amount</label><input id="withdrawAmount" type="number" min="20000" required></div>
+      <div class="field"><label>Mobile money provider</label><select id="withdrawProvider" required><option value="">Choose provider</option><option>MTN Mobile Money</option><option>Airtel Money</option></select></div>
+      <div class="field"><label>Account name</label><input id="withdrawName" required></div>
+      <div class="field"><label>Mobile money number</label><input id="withdrawNumber" type="tel" required></div>
+      <button class="btn" id="withdrawSubmit">Submit withdrawal request</button>
+    </form>
+  </div>
+</section>
+
+<section id="activity">
+  <h2>Transactions and requests</h2>
+  <button class="btn" onclick="loadActivity()">Refresh activity</button>
+  <div class="card" id="allActivity">Loading...</div>
+</section>
+
+<section id="profile">
+  <h2>My profile</h2>
+  <div class="card">
+    <div id="profileMessage" class="message"></div>
+    <form id="profileForm">
+      <div class="field"><label>Username</label><input id="profileUsername" required></div>
+      <div class="field"><label>Email</label><input id="profileEmail" type="email" readonly></div>
+      <div class="field"><label>Contact number</label><input id="profileContact" type="tel"></div>
+      <button class="btn">Save profile</button>
+    </form>
+    <button class="btn" style="margin-top:12px;background:#8c302a" onclick="signOut()">Log out</button>
+  </div>
+</section>
+
+<section id="referrals">
+  <h2>Referral rewards</h2>
+  <div class="card">
+    <p>Share your personal registration link.</p>
+    <div id="refLink" style="overflow-wrap:anywhere;font-size:12px"></div>
+    <button class="btn" style="margin-top:12px" onclick="shareReferral()">Share link</button>
+    <button class="btn" style="margin-top:12px" onclick="copyReferral()">Copy link</button>
+    <hr>
+    <p>10 verified referrals: <strong>20,000</strong></p>
+    <p>50 verified referrals: <strong>80,000</strong></p>
+    <p>100 verified referrals: <strong>130,000</strong></p>
+    <p class="muted">Referral counting and rewards require additional secure backend logic.</p>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button onclick="page('home')">⌂<br>Home</button>
+  <button onclick="page('plans')">◈<br>Plans</button>
+  <button onclick="page('deposit')">＋<br>Deposit</button>
+  <button onclick="page('withdraw')">↙<br>Withdraw</button>
+  <button onclick="page('activity')">▤<br>Activity</button>
+  <button onclick="page('referrals')">♧<br>Refer</button>
+</nav>
+
+<script>
+const SUPABASE_URL="https://chjtxxwxhvjwpspmikme.supabase.co";
+const SUPABASE_KEY="sb_publishable_g8gM0qRrMveb8A7H3BLYYg_g21-SBKA";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let user=null;
+
+const plans=[
+{id:"box20",name:"Saving Box",days:5,amount:20000,earned:15000,total:35000,daily:3000,art:"▣"},
+{id:"box30",name:"Saving Box",days:5,amount:30000,earned:25000,total:55000,daily:5000,art:"▣"},
+{id:"box50",name:"Saving Box",days:5,amount:50000,earned:35000,total:85000,daily:7000,art:"▣"},
+{id:"box100",name:"Saving Box",days:5,amount:100000,earned:55000,total:155000,daily:11000,art:"▣"},
+{id:"safe20",name:"Saving Safe",days:10,amount:20000,earned:30000,total:50000,daily:3000,art:"▤"},
+{id:"safe30",name:"Saving Safe",days:10,amount:30000,earned:50000,total:80000,daily:5000,art:"▤"},
+{id:"safe50",name:"Saving Safe",days:10,amount:50000,earned:70000,total:120000,daily:7000,art:"▤"},
+{id:"safe100",name:"Saving Safe",days:10,amount:100000,earned:110000,total:210000,daily:11000,art:"▤"},
+{id:"tin20",name:"Saving Tin",days:20,amount:20000,earned:35000,total:55000,daily:1750,art:"▥"},
+{id:"tin30",name:"Saving Tin",days:20,amount:30000,earned:55000,total:85000,daily:2750,art:"▥"},
+{id:"tin50",name:"Saving Tin",days:20,amount:50000,earned:85000,total:135000,daily:4250,art:"▥"},
+{id:"tin100",name:"Saving Tin",days:20,amount:100000,earned:155000,total:255000,daily:7750,art:"▥"},
+{id:"elephant20",name:"Saving Elephant",days:30,amount:20000,earned:50000,total:70000,daily:50000/30,art:"🐘"},
+{id:"elephant30",name:"Saving Elephant",days:30,amount:30000,earned:90000,total:120000,daily:3000,art:"🐘"},
+{id:"elephant50",name:"Saving Elephant",days:30,amount:50000,earned:135000,total:185000,daily:4500,art:"🐘"},
+{id:"elephant100",name:"Saving Elephant",days:30,amount:100000,earned:220000,total:320000,daily:220000/30,art:"🐘"}
+];
+
+function fmt(n){return Math.round(Number(n)||0).toLocaleString("en-UG")}
+function msg(id,text,type="success"){
+ const el=document.getElementById(id);
+ el.textContent=text;el.className="message show "+type;
+}
+function page(id){
+ document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
+ const target=document.getElementById(id);
+ if(target)target.classList.add("active");
+ window.scrollTo(0,0);
+ if(id==="activity")loadActivity();
+}
+function card(p){
+ return `<div class="card plan">
+ <div class="plan-art"><span class="coin-slot"></span>${p.art}</div>
+ <h3>${p.name} · ${p.days} days</h3>
+ <p>Save: <strong>${fmt(p.amount)}</strong></p>
+ <p>Daily earnings*: <strong>${fmt(p.daily)}</strong></p>
+ <p>Total earnings*: <strong>${fmt(p.earned)}</strong></p>
+ <p>Maturity target*: <strong>${fmt(p.total)}</strong></p>
+ <button class="btn" onclick="selectPlan('${p.id}')">Choose plan</button>
+ </div>`;
+}
+function renderPlans(){
+ document.getElementById("featured").innerHTML=[plans[0],plans[4],plans[8],plans[12]].map(card).join("");
+ document.getElementById("allPlans").innerHTML=plans.map(card).join("");
+ document.getElementById("depositPlan").innerHTML='<option value="">Choose plan</option>'+
+ plans.map(p=>`<option value="${p.id}">${p.name} · ${p.days} days · ${fmt(p.amount)}</option>`).join("");
+}
+function selectPlan(id){
+ const p=plans.find(x=>x.id===id);
+ if(!p)return;
+ document.getElementById("depositPlan").value=p.id;
+ document.getElementById("depositAmount").value=p.amount;
+ page("deposit");
+}
+function referralURL(){
+ const u=new URL("register.html",location.href);
+ if(user)u.searchParams.set("ref",user.id);
+ return u.href;
+}
+function updateReferral(){
+ document.getElementById("refLink").textContent=referralURL();
+}
+async function copyReferral(){
+ const value=referralURL();
+ try{await navigator.clipboard.writeText(value);alert("Referral link copied.");}
+ catch(e){prompt("Copy your referral link:",value);}
+}
+async function shareReferral(){
+ const url=referralURL();
+ if(navigator.share){try{await navigator.share({title:"Co Save & Earn",url});}catch(e){}}
+ else copyReferral();
+}
+function openProfile(){page("profile")}
+async function signOut(){
+ const {error}=await db.auth.signOut();
+ if(error){alert(error.message);return;}
+ location.href="login.html";
+}
+async function loadProfile(){
+ const {data,error}=await db.from("profiles").select("*").eq("id",user.id).maybeSingle();
+ if(error)console.error("Profile:",error.message);
+ const p=data||{};
+ const name=p.username||user.user_metadata?.username||user.email.split("@")[0];
+ document.getElementById("welcome").textContent="Welcome, "+name+"!";
+ document.getElementById("profileUsername").value=name;
+ document.getElementById("profileEmail").value=user.email||"";
+ document.getElementById("profileContact").value=p.contact||user.user_metadata?.contact||"";
+}
+document.getElementById("profileForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const payload={
+  id:user.id,
+  username:document.getElementById("profileUsername").value.trim(),
+  contact:document.getElementById("profileContact").value.trim()
+ };
+ const {error}=await db.from("profiles").upsert(payload,{onConflict:"id"});
+ if(error){msg("profileMessage","Profile could not be saved: "+error.message,"error");return;}
+ msg("profileMessage","Profile saved successfully.");
+ await loadProfile();
+});
+async function loadActivity(){
+ if(!user)return;
+ const [d,w]=await Promise.all([
+  db.from("deposits").select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(50),
+  db.from("withdrawals").select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(50)
+ ]);
+ if(d.error||w.error){
+  const error=d.error||w.error;
+  document.getElementById("allActivity").textContent="Could not load activity: "+error.message;
+  document.getElementById("recent").textContent="Could not load activity. Check your table columns and policies.";
+  return;
+ }
+ const items=[...(d.data||[]).map(x=>({...x,kind:"Deposit"})),...(w.data||[]).map(x=>({...x,kind:"Withdrawal"}))].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+ const html=items.length?items.map(x=>`<div class="row"><span>${x.kind}<br>${fmt(x.amount)}<br>${x.created_at?new Date(x.created_at).toLocaleDateString():""}</span><span class="status">${x.status||"pending"}</span></div>`).join(""):'<p class="muted">No requests recorded yet.</p>';
+ document.getElementById("allActivity").innerHTML=html;
+ document.getElementById("recent").innerHTML=items.slice(0,3).map(x=>`<div class="row"><span>${x.kind}<br>${fmt(x.amount)}</span><span class="status">${x.status||"pending"}</span></div>`).join("")||'<p class="muted">No recent activity.</p>';
+ const approvedD=(d.data||[]).filter(x=>String(x.status).toLowerCase()==="approved");
+ const approvedW=(w.data||[]).filter(x=>String(x.status).toLowerCase()==="approved");
+ document.getElementById("deposited").textContent=fmt(approvedD.reduce((s,x)=>s+Number(x.amount||0),0));
+ document.getElementById("withdrawn").textContent=fmt(approvedW.reduce((s,x)=>s+Number(x.amount||0),0));
+ let daily=0;
+ try{daily=JSON.parse(localStorage.getItem("coActivePlans")||"[]").reduce((s,id)=>s+(plans.find(p=>p.id===id)?.daily||0),0)}catch(e){}
+ document.getElementById("daily").textContent=fmt(daily);
+}
+document.getElementById("depositPlan").addEventListener("change",function(){
+ const p=plans.find(x=>x.id===this.value);
+ if(p)document.getElementById("depositAmount").value=p.amount;
+});
+document.getElementById("depositForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!user)return msg("depositMessage","Please log in again.","error");
+ const amount=Number(document.getElementById("depositAmount").value);
+ const p=plans.find(x=>x.id===document.getElementById("depositPlan").value);
+ if(!p)return msg("depositMessage","Choose a savings plan.","error");
+ if(!Number.isFinite(amount)||amount<20000)return msg("depositMessage","Minimum deposit is 20,000.","error");
+ const payload={
+  user_id:user.id,amount,
+  payment_method:document.getElementById("depositProvider").value,
+  mobile_money_name:document.getElementById("depositName").value.trim(),
+  mobile_money_number:document.getElementById("depositNumber").value.trim(),
+  status:"pending",plan_id:p.id,plan_name:p.name,cycle_days:p.days
+ };
+ const b=document.getElementById("depositSubmit");b.disabled=true;
+ const {error}=await db.from("deposits").insert(payload);
+ b.disabled=false;
+ if(error)return msg("depositMessage","Could not submit: "+error.message,"error");
+ msg("depositMessage","Request submitted and pending verification.");
+ e.target.reset();await loadActivity();
+});
+document.getElementById("withdrawForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!user)return msg("withdrawMessage","Please log in again.","error");
+ const amount=Number(document.getElementById("withdrawAmount").value);
+ if(!Number.isFinite(amount)||amount<20000)return msg("withdrawMessage","Minimum withdrawal is 20,000.","error");
+ const payload={
+  user_id:user.id,amount,
+  payment_method:document.getElementById("withdrawProvider").value,
+  mobile_money_name:document.getElementById("withdrawName").value.trim(),
+  mobile_money_number:document.getElementById("withdrawNumber").value.trim(),
+  status:"pending"
+ };
+ const b=document.getElementById("withdrawSubmit");b.disabled=true;
+ const {error}=await db.from("withdrawals").insert(payload);
+ b.disabled=false;
+ if(error)return msg("withdrawMessage","Could not submit: "+error.message,"error");
+ msg("withdrawMessage","Withdrawal request submitted for review.");
+ e.target.reset();await loadActivity();
+});
+async function init(){
+ const {data,error}=await db.auth.getUser();
+ if(error||!data.user){location.href="login.html";return;}
+ user=data.user;
+ renderPlans();
+ await loadProfile();
+ updateReferral();
+ await loadActivity();
+}
+init();
+</script>
+</body>
+  </html>
+  
