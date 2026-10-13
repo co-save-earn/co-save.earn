@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Create Account | Co Save & Earn</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f5ed;color:#173a2d}
+header{background:#052d23;color:white;padding:18px;font-weight:bold}
+header a{float:right;color:#efd17a;text-decoration:none;font-size:13px}
+main{max-width:430px;margin:35px auto;padding:22px}
+.card{background:white;padding:24px;border-radius:17px;border:1px solid #e1e8df}
+h1{font-size:25px;margin:0 0 8px}
+p{font-size:13px;color:#6d7c71;line-height:1.6}
+label{display:block;font-size:12px;font-weight:bold;margin:15px 0 7px}
+input{width:100%;padding:13px;border:1px solid #dce4db;border-radius:9px;font-size:14px}
+button{width:100%;padding:14px;border:0;border-radius:9px;background:#07513b;color:white;font-weight:bold;margin-top:20px}
+#message{font-size:13px;overflow-wrap:anywhere;line-height:1.6}
+a{color:#07513b}
+</style>
+</head>
+<body>
+<header>✦ Co Save & Earn <a href="login.html">Log in</a></header>
+<main>
+<div class="card">
+<h1>Create your account</h1>
+<p>Join Co Save & Earn and begin your savings journey.</p>
+<div id="message" role="status"></div>
+
+<form id="registerForm">
+<label for="username">Username</label>
+<input id="username" required maxlength="40" autocomplete="username">
+
+<label for="email">Email address</label>
+<input id="email" type="email" required autocomplete="email">
+
+<label for="contact">Contact number</label>
+<input id="contact" type="tel" required autocomplete="tel">
+
+<label for="password">Password</label>
+<input id="password" type="password" required minlength="8" autocomplete="new-password">
+
+<label for="confirmPassword">Confirm password</label>
+<input id="confirmPassword" type="password" required minlength="8" autocomplete="new-password">
+
+<button id="submitButton" type="submit">Create account</button>
+</form>
+<p>Already registered? <a href="login.html">Log in here</a></p>
+<p><a href="index.html">← Back to home</a></p>
+</div>
+</main>
+
+<script>
+const SUPABASE_URL="https://chjtxxwxhvjwpspmikme.supabase.co";
+const SUPABASE_KEY="sb_publishable_g8gM0qRrMveb8A7H3BLYYg_g21-SBKA";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const form=document.getElementById("registerForm");
+const message=document.getElementById("message");
+const button=document.getElementById("submitButton");
+
+form.addEventListener("submit",async function(e){
+ e.preventDefault();
+ message.style.color="#6d7c71";
+ message.textContent="";
+ const username=document.getElementById("username").value.trim();
+ const email=document.getElementById("email").value.trim();
+ const contact=document.getElementById("contact").value.trim();
+ const password=document.getElementById("password").value;
+ const confirmPassword=document.getElementById("confirmPassword").value;
+
+ if(password!==confirmPassword){
+  message.style.color="#b3261e";
+  message.textContent="Your passwords do not match.";
+  return;
+ }
+
+ button.disabled=true;
+ button.textContent="Creating account...";
+
+ try{
+  const {data,error}=await db.auth.signUp({
+   email:email,
+   password:password,
+   options:{
+    data:{username:username,contact:contact},
+    emailRedirectTo:location.origin+location.pathname.replace("register.html","login.html")
+   }
+  });
+
+  if(error)throw error;
+
+  if(data.user && data.session){
+   const {error:profileError}=await db.from("profiles").upsert({
+    id:data.user.id,
+    username:username,
+    contact:contact
+   },{onConflict:"id"});
+
+   if(profileError){
+    message.style.color="#b3261e";
+    message.textContent="Your authentication account was created, but your profile could not be saved: "+profileError.message+". Check the profiles table and its RLS policies.";
+    return;
+   }
+
+   message.style.color="#17683d";
+   message.textContent="Account created successfully! Opening your dashboard...";
+   location.href="dashboard.html";
+  }else{
+   message.style.color="#17683d";
+   message.textContent="Registration received! Check your email for the confirmation link. After confirming, return to the login page.";
+   form.reset();
+  }
+ }catch(error){
+  message.style.color="#b3261e";
+  message.textContent="Registration failed: "+error.message;
+ }finally{
+  button.disabled=false;
+  button.textContent="Create account";
+ }
+});
+</script>
+</body>
+  </html>
+  
