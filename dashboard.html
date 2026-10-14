@@ -348,6 +348,42 @@ async function init(){
 }
 init();
 </script>
-</body>
+<style>
+/* Hide saving plan boxes only on the Deposit page */
+body.deposit-page .saving-plan,
+body.deposit-page .saving-plan-card,
+body.deposit-page .plan-card,
+body.deposit-page .saving-plans,
+body.deposit-page .plans-container,
+body.deposit-page #savingPlans,
+body.deposit-page #plansSection {
+    display: none !important;
+}
+</style>
+
+<script>
+(function () {
+    function hideDepositPlans() {
+        const depositPage = document.querySelector(
+            '#depositPage, #deposit-page, .deposit-page, [data-page="deposit"]'
+        );
+
+        if (!depositPage) return;
+
+        depositPage.querySelectorAll(
+            '.saving-plan, .saving-plan-card, .plan-card, ' +
+            '.saving-plans, .plans-container, #savingPlans, #plansSection'
+        ).forEach(function (element) {
+            element.style.setProperty('display', 'none', 'important');
+        });
+    }
+
+    hideDepositPlans();
+
+    document.addEventListener('click', function () {
+        setTimeout(hideDepositPlans, 100);
+    });
+})();
+</script></body>
   </html>
   
