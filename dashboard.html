@@ -384,6 +384,198 @@ body.deposit-page #plansSection {
         setTimeout(hideDepositPlans, 100);
     });
 })();
-</script></body>
+</script>
+<script>
+/* CO SAVE & EARN — SAVINGS PLAN ACTIVATION */
+(function () {
+  if (!window.supabase || typeof db === "undefined") {
+    console.error("Supabase is not connected.");
+    return;
+  }
+
+  const money = n =>
+    Math.round(Number(n) || 0).toLocaleString("en-UG");
+
+  function showPlanMessage(text, error = false) {
+    let box = document.getElementById("extraPlanMessage");
+
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "extraPlanMessage";
+      box.style.cssText =
+        "padding:14px;margin:12px 0;border-radius:12px;" +
+        "font-size:14px;line-height:1.6;";
+
+      const target =
+        document.getElementById("plans") ||
+        document.querySelector("main") ||
+        document.body;
+
+      target.prepend(box);
+    }
+
+    box.style.background = error ? "#ffebeb" : "#e3f5e8";
+    box.style.color = error ? "#982e2e" : "#216a40";
+    box.textContent = text;
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  // Override the existing plan button action.
+  window.selectPlan = async function (id) {
+    const planList = typeof plans !== "undefined" ? plans : [];
+    const plan = planList.find(p => p.id === id);
+
+    if (!plan) {
+      showPlanMessage("This savings plan could not be found.", true);
+      return;
+    }
+
+    const currentUser =
+      typeof user !== "undefined" ? user : null;
+
+    if (!currentUser) {
+      showPlanMessage("Please log in before activating a savings plan.", true);
+      return;
+    }
+
+    if (!confirm(
+      "Activate " + plan.name + " for " + money(plan.amount) +
+      " for " + plan.days + " days?"
+    )) return;
+
+    try {
+      const { data, error } = await db.rpc(
+        "activate_savings_plan",
+        { p_plan_id: id }
+      );
+
+      if (error) {
+        showPlanMessage(
+          "Activation failed: " + error.message,
+          true
+        );
+        return;
+      }
+
+      const result = Array.isArray(data) ? data[0] : data;
+
+      if (!result || result.success !== true) {
+        showPlanMessage(
+          "Insufficient balance. This plan requires " +
+          money(result && result.required || plan.amount) +
+          ". Your available balance is " +
+          money(result && result.available || 0) +
+          ". Submit a deposit and wait for approval before trying again.",
+          true
+        );
+        return;
+      }
+
+      showPlanMessage(
+        plan.name + " activated successfully! Your " +
+        plan.days + "-day cycle has started."
+      );
+
+      // Refresh balance/activity if these functions exist.
+      if (typeof loadActivity === "function") {
+        await loadActivity();
+      }
+
+      if (typeof loadSavingsCycles === "function") {
+        await loadSavingsCycles();
+      } else {
+        await displayActiveCycles();
+      }
+    } catch (err) {
+      showPlanMessage(
+        "Something went wrong: " + err.message,
+        true
+      );
+    }
+  };
+
+  // Display cycles saved in Supabase.
+  async function displayActiveCycles() {
+    const currentUser =
+      typeof user !== "undefined" ? user : null;
+
+    if (!currentUser) return;
+
+    const { data, error } = await db
+      .from("savings_cycles")
+      .select(
+        "plan_name,amount,cycle_days,start_date,end_date,status"
+      )
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      showPlanMessage(
+        "The plan was processed, but cycles could not be loaded: " +
+        error.message,
+        true
+      );
+      return;
+    }
+
+    let box = document.getElementById("extraActiveCycles");
+
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "extraActiveCycles";
+      box.style.cssText =
+        "background:white;padding:16px;margin:14px 0;" +
+        "border-radius:14px;color:#073e30;";
+
+      const plansPage = document.getElementById("plans");
+
+      if (plansPage) plansPage.appendChild(box);
+      else document.querySelector("main").appendChild(box);
+    }
+
+    box.innerHTML = "<h3>My savings cycles</h3>";
+
+    if (!data || data.length === 0) {
+      box.innerHTML += "<p>No savings cycles activated yet.</p>";
+      return;
+    }
+
+    data.forEach(cycle => {
+      const end = new Date(cycle.end_date);
+      const remaining = Math.max(
+        0,
+        Math.ceil((end.getTime() - Date.now()) / 86400000)
+      );
+
+      const item = document.createElement("div");
+      item.style.cssText =
+        "padding:12px 0;border-bottom:1px solid #e0e7df;" +
+        "line-height:1.8;font-size:13px;";
+
+      const heading = document.createElement("strong");
+      heading.textContent =
+        cycle.plan_name + " · " + cycle.cycle_days + " days";
+
+      const details = document.createElement("div");
+      details.textContent =
+        "Amount: " + money(cycle.amount) +
+        " | Status: " + cycle.status +
+        " | " + (remaining > 0
+          ? remaining + " day(s) remaining"
+          : "Cycle time completed; payout not yet processed.");
+
+      item.appendChild(heading);
+      item.appendChild(details);
+      box.appendChild(item);
+    });
+  }
+
+  // Provide a manual refresh button for the saved cycles.
+  window.refreshSavingsCycles = displayActiveCycles;
+})();
+</script>
+</body>
+</html>
+</body>
   </html>
   
