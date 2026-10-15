@@ -928,6 +928,124 @@ body.deposit-page #plansSection {
 </script>
 </body>
   </html>
-  </body>
+  
+<!-- CO SAVE & EARN: PRIVATE REFERRAL SUMMARY -->
+<section id="privateReferralSummary" style="
+  margin:20px 0;padding:22px;border-radius:20px;
+  background:linear-gradient(145deg,#073e30,#032b22);
+  color:#fff;font-family:Arial,sans-serif;
+">
+  <h2 style="margin:0 0 8px;color:#e8c66b">
+    Referral Rewards
+  </h2>
+  <p style="margin:0 0 18px;color:#d8e8df">
+    Invite friends and track your successful referrals.
+  </p>
+
+  <div style="padding:18px;background:#ffffff12;border-radius:15px">
+    <div style="font-size:13px;color:#d8e8df">
+      TOTAL SUCCESSFUL REFERRALS
+    </div>
+    <div id="myReferralCount"
+      style="font-size:36px;font-weight:bold;color:#e8c66b;margin:8px 0">
+      …
+    </div>
+    <div id="referralMessage" style="font-size:13px">
+      Loading your referral count…
+    </div>
+  </div>
+
+  <h3 style="margin:22px 0 12px;color:#e8c66b">
+    Reward milestones
+  </h3>
+
+  <div style="display:grid;gap:10px">
+    <div style="padding:13px;background:#ffffff12;border-radius:12px">
+      10 referrals <strong style="float:right">20,000</strong>
+    </div>
+    <div style="padding:13px;background:#ffffff12;border-radius:12px">
+      50 referrals <strong style="float:right">80,000</strong>
+    </div>
+    <div style="padding:13px;background:#ffffff12;border-radius:12px">
+      100 referrals <strong style="float:right">130,000</strong>
+    </div>
+  </div>
+
+  <p style="margin-top:20px;font-size:13px;color:#d8e8df">
+    Your referral link
+  </p>
+  <input id="myReferralLink" readonly
+    style="box-sizing:border-box;width:100%;padding:12px;border-radius:10px;border:0;margin-bottom:10px"
+    value="Loading your link…">
+
+  <button id="copyMyReferralLink"
+    style="width:100%;padding:13px;border:0;border-radius:10px;background:#e8c66b;color:#032b22;font-weight:bold">
+    Copy referral link
+  </button>
+</section>
+
+<script>
+(async function () {
+  const SUPABASE_URL = "https://chjtxxwxhvjwpspmikme.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_g8gM0qRrMveb8A7H3BLYYg_g21-SBKA";
+
+  const countEl = document.getElementById("myReferralCount");
+  const messageEl = document.getElementById("referralMessage");
+  const linkEl = document.getElementById("myReferralLink");
+  const copyBtn = document.getElementById("copyMyReferralLink");
+
+  try {
+    if (!window.supabase) {
+      throw new Error("Supabase library is not loaded. Check your existing Supabase script.");
+    }
+
+    const client = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const { data, error } = await client.auth.getUser();
+
+    if (error || !data.user) {
+      throw new Error("Please log in to view your referral details.");
+    }
+
+    const currentUser = data.user;
+    linkEl.value =
+      location.origin + location.pathname.replace(/[^/]*$/, "") +
+      "register.html?ref=" + encodeURIComponent(currentUser.id);
+
+    const { data: total, error: countError } =
+      await client.rpc("get_my_referral_count");
+
+    if (countError) throw countError;
+
+    const count = Number(total) || 0;
+    countEl.textContent = count;
+    messageEl.textContent =
+      count === 1 ? "1 successful referral recorded." :
+      count + " successful referrals recorded.";
+
+    copyBtn.onclick = async function () {
+      try {
+        await navigator.clipboard.writeText(linkEl.value);
+        copyBtn.textContent = "Link copied!";
+      } catch (e) {
+        linkEl.focus();
+        linkEl.select();
+        const copied = document.execCommand("copy");
+        copyBtn.textContent = copied ? "Link copied!" : "Copy the selected link";
+      }
+    };
+  } catch (error) {
+    countEl.textContent = "—";
+    messageEl.textContent =
+      error.message || "Could not load your referral count.";
+  }
+})();
+</script>
+</body>
+      </html>
+    </body>
   </html>
   
