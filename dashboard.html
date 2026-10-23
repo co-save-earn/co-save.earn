@@ -1648,5 +1648,79 @@ body.deposit-page #plansSection {
   }
 })();
 </script>
-<!-- END PLAN VISIBILITY FIX --></html>
+<!-- END PLAN VISIBILITY FIX --><!-- FINAL FIX: LIMIT SMALL PLANS TO HOME AND PLANS -->
+<script>
+(function () {
+  function fixSmallPlansVisibility() {
+    const plans = document.getElementById("coPremiumPlans");
+    if (!plans) return;
+
+    function setVisible(show) {
+      plans.style.setProperty(
+        "display",
+        show ? "block" : "none",
+        "important"
+      );
+    }
+
+    function getPageName(element) {
+      return (
+        element.innerText ||
+        element.textContent ||
+        element.getAttribute("aria-label") ||
+        element.getAttribute("title") ||
+        ""
+      ).replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function handleNavigation(event) {
+      const item = event.target.closest(
+        "a, button, [role='button']"
+      );
+      if (!item) return;
+
+      const name = getPageName(item);
+
+      if (name === "home" || name.startsWith("home ")) {
+        setVisible(true);
+      } else if (
+        name === "plans" || name.startsWith("plans ")
+      ) {
+        setVisible(true);
+      } else if (
+        /^(deposit|withdraw|activity|refer|my savings)\b/.test(name)
+      ) {
+        setVisible(false);
+      }
+    }
+
+    document.addEventListener("click", handleNavigation, true);
+
+    // Keep the plans hidden if another script tries to force them visible.
+    const observer = new MutationObserver(function () {
+      const active = document.activeElement;
+      if (active) handleNavigation({ target: active });
+    });
+
+    observer.observe(document.body, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "aria-current"]
+    });
+
+    // Default to Home.
+    setVisible(true);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      fixSmallPlansVisibility
+    );
+  } else {
+    fixSmallPlansVisibility();
+  }
+})();
+</script>
+<!-- END FIX --></html>
   
