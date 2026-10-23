@@ -1742,5 +1742,46 @@ body.deposit-page #plansSection {
   }, true);
 })();
 </script>
-<!-- END POPUP REPLACEMENT --></html>
+<!-- END POPUP REPLACEMENT --><!-- HIDE IMPORTANT NOTICE UNDER SMALL SAVING PLANS -->
+<style>
+#coPremiumPlans .cp-notice,
+#coPremiumPlans .cp-important,
+#coPremiumPlans .cp-warning,
+#coPremiumPlans .cp-disclaimer {
+  display: none !important;
+}
+</style>
+
+<script>
+(function () {
+  function hidePlanNotice() {
+    const root = document.getElementById("coPremiumPlans");
+    if (!root) return;
+
+    root.querySelectorAll("*").forEach(function (el) {
+      if (el.children.length > 0) return;
+
+      const text = (el.textContent || "").trim();
+
+      if (
+        text.startsWith("Important:") &&
+        text.includes("displayed profits")
+      ) {
+        el.style.setProperty("display", "none", "important");
+
+        if (el.parentElement) {
+          el.parentElement.style.setProperty(
+            "display", "none", "important"
+          );
+        }
+      }
+    });
+  }
+
+  hidePlanNotice();
+
+  document.addEventListener("DOMContentLoaded", hidePlanNotice);
+})();
+</script>
+<!-- END NOTICE REMOVAL --></html>
   
