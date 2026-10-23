@@ -1722,5 +1722,25 @@ body.deposit-page #plansSection {
   }
 })();
 </script>
-<!-- END FIX --></html>
+<!-- END FIX --><!-- REMOVE OLD SMALL PLAN REVIEW POPUP -->
+<script>
+(function () {
+  document.addEventListener("click", function (event) {
+    const button = event.target.closest(".cp-select");
+    if (!button) return;
+
+    // Stop the old visual-only selection handler.
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    alert(
+      "Co Save & Earn\n\n" +
+      "This saving plan is displayed successfully, " +
+      "but activation is not connected yet.\n\n" +
+      "Please try again after plan activation is enabled."
+    );
+  }, true);
+})();
+</script>
+<!-- END POPUP REPLACEMENT --></html>
   
