@@ -1783,5 +1783,43 @@ body.deposit-page #plansSection {
   document.addEventListener("DOMContentLoaded", hidePlanNotice);
 })();
 </script>
-<!-- END NOTICE REMOVAL --></html>
+<!-- END NOTICE REMOVAL --><!-- REMOVE THE SMALL PLAN REVIEW POPUP -->
+<script>
+(function () {
+  document.addEventListener("click", function (event) {
+    const button = event.target.closest(".cp-select");
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    // Remove the old popup and show a simple notice.
+    const oldNotice = document.getElementById("smallPlanNotice");
+    if (oldNotice) oldNotice.remove();
+
+    const notice = document.createElement("div");
+    notice.id = "smallPlanNotice";
+    notice.style.cssText =
+      "position:fixed;z-index:999999;left:20px;right:20px;" +
+      "top:40%;padding:22px;background:#073e30;color:white;" +
+      "border-radius:16px;text-align:center;font-size:16px;";
+
+    notice.innerHTML =
+      "<strong>Co Save &amp; Earn</strong>" +
+      "<p>Plan activation is not connected yet.</p>" +
+      "<button id='closeSmallPlanNotice' " +
+      "style='padding:10px 24px;border:0;border-radius:20px;" +
+      "background:#e8c66b;color:#073e30;font-weight:bold'>" +
+      "Close</button>";
+
+    document.body.appendChild(notice);
+
+    document.getElementById("closeSmallPlanNotice")
+      .addEventListener("click", function () {
+        notice.remove();
+      });
+  }, true);
+})();
+</script>
+<!-- END POPUP FIX --></html>
   
