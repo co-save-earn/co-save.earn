@@ -1585,5 +1585,68 @@ body.deposit-page #plansSection {
   }
 })();
 </script>
-<!-- END CYCLE BUTTON FIX --></html>
+<!-- END CYCLE BUTTON FIX --><!-- SHOW SMALL SAVING PLANS ONLY ON HOME AND PLANS -->
+<script>
+(function () {
+  function setupPlanVisibility() {
+    const plans = document.getElementById("coPremiumPlans");
+    if (!plans) return;
+
+    function getNavLabel(element) {
+      return (element.innerText || element.textContent || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+    }
+
+    function updateVisibility(label) {
+      if (!label) return;
+
+      const allowed =
+        label.includes("home") ||
+        label === "plans" ||
+        label.startsWith("plans ");
+
+      plans.style.display = allowed ? "block" : "none";
+    }
+
+    // Find the dashboard's bottom navigation.
+    document.addEventListener("click", function (event) {
+      const item = event.target.closest(
+        "a, button, [role='button']"
+      );
+
+      if (!item) return;
+
+      const label = getNavLabel(item);
+
+      const navLabels = [
+        "home", "plans", "deposit", "withdraw",
+        "activity", "refer", "my savings"
+      ];
+
+      const matched = navLabels.find(name =>
+        label === name || label.startsWith(name + " ")
+      );
+
+      if (matched) {
+        updateVisibility(matched);
+      }
+    }, true);
+
+    // Start by showing plans on the Home page.
+    plans.style.display = "block";
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      setupPlanVisibility
+    );
+  } else {
+    setupPlanVisibility();
+  }
+})();
+</script>
+<!-- END PLAN VISIBILITY FIX --></html>
   
