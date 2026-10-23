@@ -1478,5 +1478,112 @@ body.deposit-page #plansSection {
   }
 })();
 </script>
-<!-- END SMALL PLANS DISPLAY FIX --></html>
+<!-- END SMALL PLANS DISPLAY FIX --><!-- FIX SMALL SAVING PLAN CYCLE BUTTONS -->
+<style>
+#coPremiumPlans #cpCycleContent {
+  display: block !important;
+  min-height: 100px;
+}
+#coPremiumPlans .cp-cycle {
+  display: block !important;
+  margin-top: 18px;
+}
+#coPremiumPlans .cp-card-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  padding: 12px !important;
+}
+#coPremiumPlans .cp-card {
+  display: block !important;
+  min-width: 0;
+}
+</style>
+
+<script>
+(function () {
+  function connectSmallPlans() {
+    const root = document.getElementById("coPremiumPlans");
+    if (!root) return;
+
+    const content = root.querySelector("#cpCycleContent");
+    const tabs = root.querySelectorAll(".cp-tab");
+
+    if (!content || !tabs.length) return;
+
+    const amounts = [2000, 4000, 6000, 8000];
+
+    const cycles = {
+      5: { name: "Saving Boxes", art: "🎁" },
+      10: { name: "Saving Safes", art: "🔐" },
+      20: { name: "Saving Tins", art: "🏦" },
+      30: { name: "Saving Elephants", art: "🐘" }
+    };
+
+    const money = n => n.toLocaleString("en-US");
+
+    function render(days) {
+      const cycle = cycles[days];
+      if (!cycle) return;
+
+      content.innerHTML = `
+        <section class="cp-cycle">
+          <div class="cp-banner">
+            <span class="cp-day-label">${days} DAYS</span>
+            <div class="cp-art">${cycle.art}</div>
+            <h3>${cycle.name}</h3>
+            <p>Choose the saving amount that works for you.</p>
+          </div>
+          <div class="cp-card-grid">
+            ${amounts.map(amount => {
+              const profit = amount * days;
+              return `
+                <article class="cp-card">
+                  <div class="cp-amount">${money(amount)}</div>
+                  <div class="cp-coin">${cycle.art}</div>
+                  <div class="cp-detail">
+                    <span>Daily profit</span>
+                    <strong class="cp-profit">${money(amount)}</strong>
+                  </div>
+                  <div class="cp-detail">
+                    <span>Total profit</span>
+                    <strong>${money(profit)}</strong>
+                  </div>
+                  <div class="cp-total">
+                    <span>Total at maturity</span>
+                    <strong>${money(amount + profit)}</strong>
+                  </div>
+                  <button class="cp-select" type="button"
+                    data-amount="${amount}" data-days="${days}">
+                    Select Plan →
+                  </button>
+                </article>`;
+            }).join("")}
+          </div>
+        </section>`;
+
+      tabs.forEach(tab => {
+        const active = Number(tab.dataset.cycle) === days;
+        tab.classList.toggle("active", active);
+        tab.setAttribute("aria-pressed", String(active));
+      });
+    }
+
+    tabs.forEach(tab => {
+      tab.onclick = function () {
+        render(Number(this.dataset.cycle));
+      };
+    });
+
+    render(5);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", connectSmallPlans);
+  } else {
+    connectSmallPlans();
+  }
+})();
+</script>
+<!-- END CYCLE BUTTON FIX --></html>
   
