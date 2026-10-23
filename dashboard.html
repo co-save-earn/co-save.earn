@@ -1046,6 +1046,393 @@ body.deposit-page #plansSection {
 </script>
 </body>
       </html>
-    </body>
+    <!-- CO SAVE & EARN — PREMIUM SMALL SAVING PLANS -->
+<style>
+#coPremiumPlans {
+  --green: #073e30;
+  --deep: #032b22;
+  --emerald: #0e6148;
+  --gold: #e8c66b;
+  --cream: #f6f5ee;
+  --muted: #75867d;
+  color: var(--green);
+  font-family: Arial, sans-serif;
+  margin: 24px 0;
+}
+#coPremiumPlans * { box-sizing: border-box; }
+
+#coPremiumPlans .cp-heading {
+  background: linear-gradient(135deg, #073e30, #0e6148);
+  color: white;
+  border-radius: 20px;
+  padding: 23px 20px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+#coPremiumPlans .cp-eyebrow {
+  color: var(--gold);
+  font-size: 10px;
+  letter-spacing: 3px;
+  font-weight: bold;
+  margin-bottom: 9px;
+}
+#coPremiumPlans .cp-heading h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(24px, 5vw, 34px);
+  margin: 0 0 9px;
+  color: #fff3c3;
+}
+#coPremiumPlans .cp-heading p {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+  color: #e0eee7;
+  max-width: 340px;
+}
+#coPremiumPlans .cp-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 20px;
+}
+#coPremiumPlans .cp-feature {
+  background: #fff;
+  border: 1px solid #e2e9df;
+  border-radius: 13px;
+  padding: 12px 4px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.5;
+}
+#coPremiumPlans .cp-feature span {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 5px;
+}
+#coPremiumPlans .cp-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 20px;
+}
+#coPremiumPlans .cp-tab {
+  background: #fff;
+  color: var(--green);
+  border: 1px solid #c6d7c9;
+  border-radius: 30px;
+  padding: 12px 2px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#coPremiumPlans .cp-tab.active {
+  background: var(--green);
+  color: var(--gold);
+  border: 2px solid var(--gold);
+}
+#coPremiumPlans .cp-cycle {
+  margin: 0 0 24px;
+  background: #fff;
+  border: 1px solid #dce8db;
+  border-radius: 19px;
+  overflow: hidden;
+  box-shadow: 0 6px 22px #073e300c;
+}
+#coPremiumPlans .cp-banner {
+  padding: 20px;
+  background:
+    radial-gradient(circle at 85% 15%, #e8c66b35, transparent 35%),
+    linear-gradient(130deg, #032b22, #0e6148);
+  color: white;
+  position: relative;
+}
+#coPremiumPlans .cp-day-label {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--deep);
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 30px;
+  padding: 7px 12px;
+  margin-bottom: 12px;
+}
+#coPremiumPlans .cp-art {
+  float: right;
+  font-size: clamp(48px, 13vw, 76px);
+  line-height: 1;
+  padding: 0 5px 12px 10px;
+  filter: drop-shadow(0 6px 5px #0005);
+}
+#coPremiumPlans .cp-banner h3 {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  color: #fff0b6;
+  margin: 0 0 7px;
+}
+#coPremiumPlans .cp-banner p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+  color: #e1eee5;
+}
+#coPremiumPlans .cp-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px;
+}
+#coPremiumPlans .cp-card {
+  min-width: 0;
+  border: 1px solid #dce7d9;
+  background: linear-gradient(160deg, #fff, #f3f7ed);
+  border-radius: 15px;
+  padding: 13px 10px 12px;
+}
+#coPremiumPlans .cp-amount {
+  background: linear-gradient(100deg, #073e30, #0e6148);
+  color: white;
+  border-radius: 30px;
+  padding: 9px 3px;
+  text-align: center;
+  font-size: 19px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+#coPremiumPlans .cp-coin {
+  text-align: center;
+  font-size: 36px;
+  margin: 3px 0 12px;
+  filter: drop-shadow(0 4px 3px #9c7b2440);
+}
+#coPremiumPlans .cp-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 9px 0;
+}
+#coPremiumPlans .cp-detail span { color: #6a7b70; }
+#coPremiumPlans .cp-detail strong {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+#coPremiumPlans .cp-profit { color: #137547; }
+#coPremiumPlans .cp-total {
+  border-top: 1px solid #dce7d9;
+  padding-top: 10px;
+  margin-top: 11px;
+}
+#coPremiumPlans .cp-total strong {
+  display: block;
+  color: var(--green);
+  font-size: 17px;
+  margin-top: 5px;
+}
+#coPremiumPlans .cp-select {
+  display: block;
+  width: 100%;
+  margin-top: 13px;
+  padding: 12px 4px;
+  border: 0;
+  border-radius: 30px;
+  background: linear-gradient(100deg, #073e30, #0e6148);
+  color: #fff0b6;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#coPremiumPlans .cp-select:active,
+#coPremiumPlans .cp-tab:active {
+  transform: scale(.98);
+}
+#coPremiumPlans .cp-note {
+  background: #fff9e8;
+  border: 1px solid #ead9a5;
+  color: #66552b;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 16px;
+}
+@media(min-width:700px) {
+  #coPremiumPlans .cp-cycle {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: stretch;
+  }
+  #coPremiumPlans .cp-banner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  #coPremiumPlans .cp-art {
+    float: none;
+    text-align: center;
+    font-size: 65px;
+    padding: 18px 0;
+  }
+  #coPremiumPlans .cp-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-content: center;
+  }
+}
+</style>
+
+<section id="coPremiumPlans">
+  <div class="cp-heading">
+    <div class="cp-eyebrow">YOUR FINANCIAL SPACE</div>
+    <h2>Small Saving Plans</h2>
+    <p>Start small. Save consistently. Explore your saving cycles with Co Save &amp; Earn.</p>
+  </div>
+
+  <div class="cp-features">
+    <div class="cp-feature"><span>⚡</span>Daily earnings</div>
+    <div class="cp-feature"><span>🛡️</span>Secure account</div>
+    <div class="cp-feature"><span>🌱</span>Grow your savings</div>
+  </div>
+
+  <div class="cp-tabs" role="group" aria-label="Choose saving duration">
+    <button class="cp-tab active" data-cycle="5">5 Days</button>
+    <button class="cp-tab" data-cycle="10">10 Days</button>
+    <button class="cp-tab" data-cycle="20">20 Days</button>
+    <button class="cp-tab" data-cycle="30">30 Days</button>
+  </div>
+
+  <div id="cpCycleContent"></div>
+
+  <div class="cp-note">
+    <strong>Important:</strong> The displayed profits are proposed figures,
+    not guaranteed earnings. Daily withdrawal availability and actual payouts
+    must be verified against your account balance and approved transactions.
+  </div>
+</section>
+
+<script>
+(function () {
+  const root = document.getElementById("coPremiumPlans");
+  if (!root || root.dataset.initialized === "yes") return;
+  root.dataset.initialized = "yes";
+
+  const amounts = [2000, 4000, 6000, 8000];
+
+  const cycles = {
+    5: {
+      name: "Saving Boxes",
+      art: "🎁",
+      description: "A small start to your saving journey."
+    },
+    10: {
+      name: "Saving Safes",
+      art: "🔐",
+      description: "Build your saving habit one day at a time."
+    },
+    20: {
+      name: "Saving Tins",
+      art: "🏦",
+      description: "Stay consistent throughout your saving cycle."
+    },
+    30: {
+      name: "Saving Elephants",
+      art: "🐘",
+      description: "Choose a longer cycle for your savings."
+    }
+  };
+
+  const money = n => Number(n).toLocaleString("en-US");
+  const content = root.querySelector("#cpCycleContent");
+  const tabs = root.querySelectorAll(".cp-tab");
+
+  function render(days) {
+    const cycle = cycles[days];
+
+    const cards = amounts.map(amount => {
+      const dailyProfit = amount;
+      const totalProfit = amount * days;
+      const maturityTotal = amount + totalProfit;
+
+      return `
+        <article class="cp-card">
+          <div class="cp-amount">${money(amount)}</div>
+          <div class="cp-coin">${cycle.art}</div>
+
+          <div class="cp-detail">
+            <span>Daily profit</span>
+            <strong class="cp-profit">${money(dailyProfit)}</strong>
+          </div>
+
+          <div class="cp-detail">
+            <span>Total profit</span>
+            <strong>${money(totalProfit)}</strong>
+          </div>
+
+          <div class="cp-total">
+            <span style="font-size:11px;color:#6a7b70">
+              Total at maturity
+            </span>
+            <strong>${money(maturityTotal)}</strong>
+          </div>
+
+          <button class="cp-select" type="button"
+            data-amount="${amount}" data-days="${days}">
+            Select Plan →
+          </button>
+        </article>
+      `;
+    }).join("");
+
+    content.innerHTML = `
+      <section class="cp-cycle">
+        <div class="cp-banner">
+          <span class="cp-day-label">${days} DAYS</span>
+          <div class="cp-art" aria-hidden="true">${cycle.art}</div>
+          <h3>${cycle.name}</h3>
+          <p>${cycle.description}</p>
+        </div>
+        <div class="cp-card-grid">${cards}</div>
+      </section>
+    `;
+
+    tabs.forEach(tab => {
+      const active = Number(tab.dataset.cycle) === days;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-pressed", String(active));
+    });
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      render(Number(tab.dataset.cycle));
+    });
+  });
+
+  content.addEventListener("click", event => {
+    const button = event.target.closest(".cp-select");
+    if (!button) return;
+
+    const amount = Number(button.dataset.amount);
+    const days = Number(button.dataset.days);
+    const cycle = cycles[days];
+
+    /*
+      This is a visual plan selector only. It deliberately does not
+      create a deposit, activate a plan, or alter account balances.
+      Connect it to the existing authenticated backend before use.
+    */
+    alert(
+      cycle.name + "\n" +
+      "Saving amount: " + money(amount) + "\n" +
+      "Cycle: " + days + " days\n\n" +
+      "Plan selected for review. Activation must be connected " +
+      "to your existing Supabase account and balance checks."
+    );
+  });
+
+  render(5);
+})();
+</script>
+<!-- END CO SAVE & EARN PREMIUM SMALL PLANS --></body>
   </html>
   
