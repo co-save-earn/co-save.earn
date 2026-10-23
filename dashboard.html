@@ -1434,5 +1434,49 @@ body.deposit-page #plansSection {
 })();
 </script>
 <!-- END CO SAVE & EARN PREMIUM SMALL PLANS --></body>
-  </html>
+  <!-- FIX: SHOW CO SAVE & EARN SMALL SAVING PLANS -->
+<style>
+#coPremiumPlans {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 24px auto !important;
+  padding: 12px !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+#coPremiumPlans .cp-cycle,
+#coPremiumPlans .cp-card-grid,
+#coPremiumPlans .cp-card {
+  visibility: visible !important;
+}
+</style>
+
+<script>
+(function () {
+  function showCoSmallPlans() {
+    const section = document.getElementById("coPremiumPlans");
+    if (!section) return;
+
+    section.style.display = "block";
+    section.style.visibility = "visible";
+    section.style.opacity = "1";
+
+    const content = section.querySelector("#cpCycleContent");
+    if (content && !content.innerHTML.trim()) {
+      const firstTab = section.querySelector(".cp-tab[data-cycle='5']");
+      if (firstTab) firstTab.click();
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", showCoSmallPlans);
+  } else {
+    showCoSmallPlans();
+  }
+})();
+</script>
+<!-- END SMALL PLANS DISPLAY FIX --></html>
   
